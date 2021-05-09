@@ -18,6 +18,7 @@ import (
 )
 
 type Args struct {
+	Timezone      string `long:"timezone" env:"TIMEZONE" default:"Asia/Taipei"`
 	ChannelSecret string `long:"channel-secret" env:"CHANNEL_SECRET" required:"true"`
 	ChannelToken  string `long:"channel-token" env:"CHANNEL_TOKEN" required:"true"`
 	Port          string `long:"port" env:"PORT" required:"true"`
@@ -29,12 +30,18 @@ type Args struct {
 }
 
 type Server struct {
-	bot    *linebot.Client
-	record dao.RecordDAO
+	location *time.Location
+	line     *linebot.Client
+	record   dao.RecordDAO
 }
 
 func NewServer(args Args) (*Server, error) {
-	bot, err := linebot.New(args.ChannelSecret, args.ChannelToken)
+	loc, err := time.LoadLocation(args.Timezone)
+	if err != nil {
+		return nil, err
+	}
+
+	line, err := linebot.New(args.ChannelSecret, args.ChannelToken)
 	if err != nil {
 		return nil, err
 	}
@@ -58,8 +65,9 @@ func NewServer(args Args) (*Server, error) {
 	recordDAO := dao.NewPGRecordDAO(db)
 
 	return &Server{
-		bot:    bot,
-		record: recordDAO,
+		location: loc,
+		line:     line,
+		record:   recordDAO,
 	}, nil
 }
 
@@ -69,14 +77,14 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	server, err := NewServer(args)
+	s, err := NewServer(args)
 	if err != nil {
 		log.Fatalln(err)
 	}
 
 	// Setup HTTP Server for receiving requests from LINE platform
 	http.HandleFunc("/callback", func(w http.ResponseWriter, req *http.Request) {
-		events, err := server.bot.ParseRequest(req)
+		events, err := s.line.ParseRequest(req)
 		if err != nil {
 			if err == linebot.ErrInvalidSignature {
 				w.WriteHeader(400)
@@ -96,22 +104,23 @@ func main() {
 							content string
 							err     error
 						)
-						now := time.Now()
+						timezone, _ := time.LoadLocation(args.Timezone)
+						now := time.Now().In(timezone)
 
-						record, err := server.record.GetByDate(now)
+						record, err := s.record.GetByDate(now)
 						if err != nil {
 							if errors.Is(err, gorm.ErrRecordNotFound) {
-								if content, err = server.daka(event.Source.UserID, now); err != nil {
+								if content, err = s.daka(event.Source.UserID, now); err != nil {
 									log.Println(err)
 								}
 							}
 
 							log.Println(err)
 						} else {
-							content = fmt.Sprintf("已於 %s 打卡上班", record.WorkedAt.Format("15:04"))
+							content = fmt.Sprintf("已於 %s 打卡上班", record.WorkedAt.In(s.location).Format("15:04"))
 						}
 
-						if _, err = server.bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage(content)).Do(); err != nil {
+						if _, err = s.line.ReplyMessage(event.ReplyToken, linebot.NewTextMessage(content)).Do(); err != nil {
 							log.Println(err)
 						}
 					}
@@ -130,5 +139,5 @@ func (s *Server) daka(userID string, time time.Time) (string, error) {
 		return "", err
 	}
 
-	return fmt.Sprintf("%s 打卡上班", time.Format("15:04")), nil
+	return fmt.Sprintf("%s 打卡上班", time.In(s.location).Format("15:04")), nil
 }
