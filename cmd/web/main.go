@@ -101,7 +101,7 @@ func main() {
 						record, err := server.record.GetByDate(now)
 						if err != nil {
 							if errors.Is(err, gorm.ErrRecordNotFound) {
-								if content, err = server.daka(now); err != nil {
+								if content, err = server.daka(event.Source.UserID, now); err != nil {
 									log.Println(err)
 								}
 							}
@@ -125,8 +125,8 @@ func main() {
 	}
 }
 
-func (s *Server) daka(time time.Time) (string, error) {
-	if err := s.record.Create(&dao.Record{WorkDate: time}); err != nil {
+func (s *Server) daka(userID string, time time.Time) (string, error) {
+	if err := s.record.Create(&dao.Record{UserID: userID, WorkDate: time}); err != nil {
 		return "", err
 	}
 

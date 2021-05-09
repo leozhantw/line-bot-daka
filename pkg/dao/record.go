@@ -6,6 +6,7 @@ import (
 
 type Record struct {
 	ID        uint `gorm:"primarykey"`
+	UserID    string
 	WorkDate  time.Time
 	WorkedAt  time.Time `gorm:"autoCreateTime"`
 	CreatedAt time.Time
