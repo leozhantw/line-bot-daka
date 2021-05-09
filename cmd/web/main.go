@@ -117,7 +117,7 @@ func main() {
 
 							log.Println(err)
 						} else {
-							content = fmt.Sprintf("已於 %s 打卡上班", record.WorkedAt.In(s.location).Format("15:04"))
+							content = fmt.Sprintf("今日已於 %s 打卡上班", record.WorkedAt.In(s.location).Format("15:04"))
 						}
 
 						if _, err = s.line.ReplyMessage(event.ReplyToken, linebot.NewTextMessage(content)).Do(); err != nil {
