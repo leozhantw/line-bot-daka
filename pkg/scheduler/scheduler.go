@@ -6,6 +6,8 @@ import (
 	"log"
 	"time"
 
+	"github.com/leozhantw/line-bot-daka/pkg/randompicture"
+
 	"github.com/leozhantw/line-bot-daka/pkg/dao"
 	"github.com/line/line-bot-sdk-go/linebot"
 	"gorm.io/gorm"
@@ -55,8 +57,16 @@ func (s *Scheduler) Run() error {
 	timer := time.NewTimer(d)
 	<-timer.C
 
-	content := "下班啦！ 再不走就虧大啦！！"
-	if _, err = s.line.PushMessage(record.UserID, linebot.NewTextMessage(content)).Do(); err != nil {
+	pic, err := randompicture.Random()
+	if err != nil {
+		return fmt.Errorf("failed to random picture %v", err)
+	}
+
+	if _, err = s.line.PushMessage(
+		record.UserID,
+		linebot.NewTextMessage("下班啦！ 再不走就虧大啦！！"),
+		linebot.NewImageMessage(pic, pic),
+	).Do(); err != nil {
 		return fmt.Errorf("failed to push message %v", err)
 	}
 
