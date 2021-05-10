@@ -2,6 +2,8 @@ package scheduler
 
 import (
 	"errors"
+	"fmt"
+	"log"
 	"time"
 
 	"github.com/leozhantw/line-bot-daka/pkg/dao"
@@ -33,7 +35,7 @@ func (s *Scheduler) Run() error {
 			return nil
 		}
 
-		return err
+		return fmt.Errorf("failed to get by date %v", err)
 	}
 
 	now := time.Now()
@@ -44,16 +46,18 @@ func (s *Scheduler) Run() error {
 	}
 
 	d := offWorkTime.Sub(now)
-	if d > time.Minute*time.Duration((scheduleFrequency)) {
+	if d > time.Minute*time.Duration(scheduleFrequency) {
 		return nil
 	}
+
+	log.Println(fmt.Sprintf("starting to count down [%s]", d.String()))
 
 	timer := time.NewTimer(d)
 	<-timer.C
 
 	content := "下班啦！ 再不走就虧大啦！！"
 	if _, err = s.line.PushMessage(record.UserID, linebot.NewTextMessage(content)).Do(); err != nil {
-		return err
+		return fmt.Errorf("failed to push message %v", err)
 	}
 
 	return nil
