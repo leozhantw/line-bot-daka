@@ -13,11 +13,11 @@ import (
 )
 
 type Args struct {
-	Timezone      string      `long:"timezone" env:"TIMEZONE" default:"Asia/Taipei"`
-	ChannelSecret string      `long:"channel-secret" env:"CHANNEL_SECRET" required:"true"`
-	ChannelToken  string      `long:"channel-token" env:"CHANNEL_TOKEN" required:"true"`
-	Port          string      `long:"port" env:"PORT" required:"true"`
-	GormConfig    gorm.Config `group:"gorm" namespace:"gorm" env-namespace:"gorm"`
+	Timezone      string `long:"timezone" env:"TIMEZONE" default:"Asia/Taipei"`
+	ChannelSecret string `long:"channel-secret" env:"CHANNEL_SECRET" required:"true"`
+	ChannelToken  string `long:"channel-token" env:"CHANNEL_TOKEN" required:"true"`
+	Port          string `long:"port" env:"PORT" required:"true"`
+	GormConfig    gorm.Config
 }
 
 func main() {

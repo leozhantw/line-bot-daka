@@ -11,9 +11,9 @@ import (
 )
 
 type Args struct {
-	ChannelSecret string      `long:"channel-secret" env:"CHANNEL_SECRET" required:"true"`
-	ChannelToken  string      `long:"channel-token" env:"CHANNEL_TOKEN" required:"true"`
-	GormConfig    gorm.Config `group:"gorm" namespace:"gorm" env-namespace:"gorm"`
+	ChannelSecret string `long:"channel-secret" env:"CHANNEL_SECRET"`
+	ChannelToken  string `long:"channel-token" env:"CHANNEL_TOKEN"`
+	GormConfig    gorm.Config
 }
 
 func main() {
