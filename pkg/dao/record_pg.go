@@ -16,9 +16,13 @@ func NewPGRecordDAO(db *gorm.DB) RecordDAO {
 	}
 }
 
-func (o PGRecordDAO) GetByDate(date time.Time) (*Record, error) {
+func (o PGRecordDAO) GetByUser(userID string, date time.Time) (*Record, error) {
 	var r Record
-	err := o.db.Where("work_date = ?", date.Format("2006-01-02")).First(&r).Error
+	err := o.db.
+		Where("user_id = ?", userID).
+		Where("work_date = ?", date.Format("2006-01-02")).
+		First(&r).
+		Error
 
 	return &r, err
 }

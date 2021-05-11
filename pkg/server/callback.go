@@ -36,7 +36,7 @@ func (s *Server) HandleCallBack(w http.ResponseWriter, req *http.Request) {
 					)
 					now := time.Now().In(s.location)
 
-					record, err := s.record.GetByDate(now)
+					record, err := s.record.GetByUser(event.Source.UserID, now)
 					if err != nil {
 						if !errors.Is(err, gorm.ErrRecordNotFound) {
 							log.Fatalln("failed to get record", err)
