@@ -15,5 +15,6 @@ type Record struct {
 
 type RecordDAO interface {
 	GetByDate(date time.Time) (*Record, error)
+	ListByDate(date time.Time) (*[]Record, error)
 	Create(record *Record) error
 }

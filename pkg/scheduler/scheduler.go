@@ -1,16 +1,14 @@
 package scheduler
 
 import (
-	"errors"
 	"fmt"
 	"log"
 	"time"
 
-	"github.com/leozhantw/line-bot-daka/pkg/randompicture"
-
 	"github.com/leozhantw/line-bot-daka/pkg/dao"
+	"github.com/leozhantw/line-bot-daka/pkg/randompicture"
 	"github.com/line/line-bot-sdk-go/linebot"
-	"gorm.io/gorm"
+	"golang.org/x/sync/errgroup"
 )
 
 const (
@@ -31,28 +29,37 @@ func New(record dao.RecordDAO, line *linebot.Client) *Scheduler {
 }
 
 func (s *Scheduler) Run() error {
-	record, err := s.record.GetByDate(time.Now())
-	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil
-		}
-
-		return fmt.Errorf("failed to get by date %v", err)
-	}
+	var eg errgroup.Group
 
 	now := time.Now()
-	offWorkTime := record.WorkedAt.Add(time.Hour * time.Duration(workingHours))
-
-	if now.After(offWorkTime) {
-		return nil
+	records, err := s.record.ListByDate(now)
+	if err != nil {
+		return fmt.Errorf("failed to list by date %v", err)
 	}
 
-	d := offWorkTime.Sub(now)
-	if d > time.Minute*time.Duration(scheduleFrequency) {
-		return nil
+	for _, record := range *records {
+		record := record
+		offWorkTime := record.WorkedAt.Add(time.Hour * time.Duration(workingHours))
+
+		if now.After(offWorkTime) {
+			continue
+		}
+
+		d := offWorkTime.Sub(now)
+		if d > time.Minute*time.Duration(scheduleFrequency) {
+			continue
+		}
+
+		eg.Go(func() error {
+			return s.countdown(record, d)
+		})
 	}
 
-	log.Println(fmt.Sprintf("starting to count down [%s]", d.String()))
+	return eg.Wait()
+}
+
+func (s *Scheduler) countdown(record dao.Record, d time.Duration) error {
+	log.Println(fmt.Sprintf("user %s starting to countdown [%s]", record.UserID, d.String()))
 
 	timer := time.NewTimer(d)
 	<-timer.C

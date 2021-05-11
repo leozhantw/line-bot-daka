@@ -23,6 +23,13 @@ func (o PGRecordDAO) GetByDate(date time.Time) (*Record, error) {
 	return &r, err
 }
 
+func (o PGRecordDAO) ListByDate(date time.Time) (*[]Record, error) {
+	var rs []Record
+	err := o.db.Where("work_date = ?", date.Format("2006-01-02")).Find(&rs).Error
+
+	return &rs, err
+}
+
 func (o PGRecordDAO) Create(record *Record) error {
 	return o.db.Create(record).Error
 }
