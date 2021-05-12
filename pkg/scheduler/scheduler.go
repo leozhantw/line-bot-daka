@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	workingHours      = 8
+	workingHours      = 9
 	scheduleFrequency = 10
 )
 
