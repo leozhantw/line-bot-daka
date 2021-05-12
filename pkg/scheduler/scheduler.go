@@ -77,5 +77,7 @@ func (s *Scheduler) countdown(record dao.Record, d time.Duration) error {
 		return fmt.Errorf("failed to push message %v", err)
 	}
 
+	log.Println(fmt.Sprintf("pushed the message to user %s", record.UserID))
+
 	return nil
 }
