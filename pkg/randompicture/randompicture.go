@@ -17,6 +17,8 @@ var queries = [...]string{
 	"大家可以回家啦",
 	"下班啦",
 	"不要浪費生命了",
+	"下班表情包",
+	"下班 梗圖",
 }
 
 func Random() (string, error) {
