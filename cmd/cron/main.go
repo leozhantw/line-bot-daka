@@ -13,6 +13,7 @@ import (
 type Args struct {
 	ChannelSecret string `long:"channel-secret" env:"CHANNEL_SECRET"`
 	ChannelToken  string `long:"channel-token" env:"CHANNEL_TOKEN"`
+	PatientID     string `long:"patient-id" env:"PATIENT_ID"`
 	GormConfig    gorm.Config
 }
 
@@ -37,6 +38,7 @@ func main() {
 	s := scheduler.New(
 		recordDAO,
 		line,
+		args.PatientID,
 	)
 
 	if err := s.Run(); err != nil {

@@ -12,16 +12,7 @@ import (
 
 const endpoint = "https://www.google.com/search?safe=off&tbm=isch&q=%s"
 
-var queries = [...]string{
-	"快逃啊",
-	"大家可以回家啦",
-	"下班啦",
-	"不要浪費生命了",
-	"下班表情包",
-	"下班 梗圖",
-}
-
-func Random() (string, error) {
+func Random(queries []string) (string, error) {
 	rand.Seed(time.Now().UnixNano())
 
 	q := queries[rand.Intn(len(queries))]

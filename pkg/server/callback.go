@@ -42,7 +42,8 @@ func (s *Server) HandleCallBack(w http.ResponseWriter, req *http.Request) {
 							log.Fatalln("failed to get record", err)
 						}
 
-						if err := s.record.Create(&dao.Record{UserID: event.Source.UserID, WorkDate: now}); err != nil {
+						if err := s.record.
+							Create(&dao.Record{UserID: event.Source.UserID, WorkDate: now}); err != nil {
 							log.Fatalln("failed to create record", err)
 						}
 
