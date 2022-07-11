@@ -69,7 +69,7 @@ func (s *Scheduler) Run() error {
 			}
 
 			eg.Go(func() error {
-				return s.countdownForGetOffWork(record, d)
+				return s.countdownForTakeMedicine(record, d)
 			})
 		}
 
