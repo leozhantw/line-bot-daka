@@ -58,7 +58,7 @@ func (s *Scheduler) Run() error {
 		record := record
 
 		if record.UserID == s.patientID {
-			takeMedicineTime := time.Date(now.Year(), now.Month(), now.Day(), 6, 0, 0, 0, now.Location())
+			takeMedicineTime := time.Date(now.Year(), now.Month(), now.Day(), 5, 0, 0, 0, now.Location())
 			if now.After(takeMedicineTime) {
 				continue
 			}
